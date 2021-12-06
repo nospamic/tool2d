@@ -3,6 +3,7 @@
 class Point 
 {
 public:
+	Point(){}
 	Point(int x, int y) : x(x), y(y) {
 	}
 	bool operator ==(const Point&other) {
@@ -37,6 +38,22 @@ public:
 	}
 	int x, y;
 };
+
+class Area
+{
+public:
+	Point position;
+	Size size;
+	bool isInside(Point point) {
+		return (point.x >= position.x
+			&& point.y >= position.y
+			&& point.x <= position.x + size.x
+			&& point.y <= position.y + size.y);
+	}
+	Area() {}
+	Area(Point position, Size size) : position(position), size(size) {
+	}
+};
 ////////////////////////////////////////////////////////
 
 template <typename T>
@@ -57,7 +74,7 @@ public:
 	void set(Point point, T item);
 	void set(int x, int y, T item);
 	Size getSize() const;
-	void SetBackground(T background);
+	void setBackground(T background);
 	T getBackground() const;
 	bool isInside(Point point) const;
 
@@ -73,7 +90,7 @@ private:
 
 template <typename T>
 Array2d<T>::Array2d(Size size) :size(size) {
-	std::cout << "Constr:" << size.x << " x " << size.y << "\n";
+	//std::cout << "Constr:" << size.x << " x " << size.y << "\n";
 	base = new T*[size.x];
 	for (int i = 0; i < size.x; ++i)
 		base[i] = new T[size.y];
@@ -81,7 +98,7 @@ Array2d<T>::Array2d(Size size) :size(size) {
 
 template <typename T>
 Array2d<T>::Array2d(const Array2d<T> &other) {
-	std::cout << "copy constr:" << size.x << " x " << size.y << "\n";
+	//std::cout << "copy constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
 	base = new T*[size.x];
 	for (int i = 0; i < size.x; ++i)
@@ -94,7 +111,7 @@ Array2d<T>::Array2d(const Array2d<T> &other) {
 
 template <typename T>
 Array2d<T>::Array2d(Array2d<T> &&other) :base(other.base) {
-	std::cout << "move constr:" << size.x << " x " << size.y << "\n";
+	//std::cout << "move constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
 	other.size = Size(0, 0);
 	other.base = nullptr;
@@ -103,7 +120,7 @@ Array2d<T>::Array2d(Array2d<T> &&other) :base(other.base) {
 
 template <typename T>
 Array2d<T>& Array2d<T>::operator=(const Array2d<T> &other) {
-	std::cout << "copy assigment:" << size.x << " x " << size.y << "\n";
+	//std::cout << "copy assigment:" << size.x << " x " << size.y << "\n";
 	if (&other == this)
 		return *this;
 	if (size != other.size) {
@@ -124,7 +141,7 @@ Array2d<T>& Array2d<T>::operator=(const Array2d<T> &other) {
 
 template <typename T>
 Array2d<T>& Array2d<T>:: operator=(Array2d<T> &&other) {
-	std::cout << "move assigment:" << size.x << " x " << size.y << "\n";
+	//std::cout << "move assigment:" << size.x << " x " << size.y << "\n";
 	if (&other == this)
 		return *this;
 	for (int i = 0; i < size.x; ++i)
@@ -185,7 +202,7 @@ Size Array2d<T>::getSize() const{
 }
 
 template<typename T>
-void Array2d<T>::SetBackground(T background){
+void Array2d<T>::setBackground(T background){
 	this->background = background;
 }
 

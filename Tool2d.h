@@ -1,11 +1,16 @@
 #pragma once
 #include "Array2d.h"
+
+
+
 template <typename T>
 class Tool2d :
 	public Array2d<T>
 {
 public:
+	Tool2d();
 	Tool2d(Size size);
+	Tool2d(Size size, T background);
 	~Tool2d();
 
 	void rotate(Point center, float alpha);
@@ -20,9 +25,20 @@ private:
 	int rotateY(Point point, Point center, float fi);
 };
 
+template<typename T>
+inline Tool2d<T>::Tool2d(): Array2d<T>(Size(0, 0))
+{
+}
+
 template <typename T>
 Tool2d<T>:: Tool2d(Size size):Array2d<T>(size) {
 
+}
+
+template<typename T>
+inline Tool2d<T>::Tool2d(Size size, T background) : Array2d<T>(size){
+	Array2d<T>::setBackground(background);
+	Array2d<T>::fill();
 }
 
 template<typename T>
@@ -32,7 +48,7 @@ inline Tool2d<T>::~Tool2d(){
 template<typename T>
 void Tool2d<T>::rotate(Point center, float alpha) {
 	Tool2d<T> temp(Array2d<T>::size);
-	temp.SetBackground(Array2d<T>::background);
+	temp.setBackground(Array2d<T>::background);
 	temp.fill();
 	for (int x = 0; x < Array2d<T>::size.x; ++x) {
 		for (int y = 0; y < Array2d<T>::size.y; ++y)
@@ -65,7 +81,7 @@ inline void Tool2d<T>::setLine(Point upLeft, Size size, T brush) {
 	dx = float(size.x) / float(length);
 	dy = float(size.y) / float(length);
 	for (int n = 0; n < length; n++) {
-		set(round(x), round(y), brush);
+		Array2d<T>::set(round(x), round(y), brush);
 		x += dx;
 		y += dy;
 	}
