@@ -56,11 +56,14 @@ public:
 };
 ////////////////////////////////////////////////////////
 
-template <typename T>
+template <class T>
 class Array2d
 {
 public:
+	Array2d();
 	Array2d(Size size);
+	Array2d(Size size, T background);
+
 	Array2d(const Array2d<T> &other);
 	Array2d(Array2d<T> &&other);
 	Array2d<T>& operator=(const Array2d<T> &other);
@@ -88,12 +91,26 @@ private:
 };
 
 
+template<class T>
+inline Array2d<T>::Array2d() : size(0, 0){
+	base = new T*[size.y];
+}
+
 template <typename T>
 Array2d<T>::Array2d(Size size) :size(size) {
 	//std::cout << "Constr:" << size.x << " x " << size.y << "\n";
 	base = new T*[size.x];
 	for (int i = 0; i < size.x; ++i)
 		base[i] = new T[size.y];
+}
+
+template<class T>
+inline Array2d<T>::Array2d(Size size, T background) : size(size), background(background)
+{
+	base = new T*[size.x];
+	for (int i = 0; i < size.x; ++i)
+		base[i] = new T[size.y];
+	fill();
 }
 
 template <typename T>
@@ -113,6 +130,7 @@ template <typename T>
 Array2d<T>::Array2d(Array2d<T> &&other) :base(other.base) {
 	//std::cout << "move constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
+	background = other.background;
 	other.size = Size(0, 0);
 	other.base = nullptr;
 
@@ -149,6 +167,7 @@ Array2d<T>& Array2d<T>:: operator=(Array2d<T> &&other) {
 	delete[] base;
 	size = other.size;
 	base = other.base;
+	background = other.background;
 	other.size = Size(0, 0);
 	other.base = nullptr;
 	return *this;

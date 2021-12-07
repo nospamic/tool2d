@@ -22,7 +22,7 @@ public:
 
     void prepare();
 	Size size;
-    void setPicture (Tool2d<char>&pic, Point position);
+    void setPicture (Array2d<char>&pic, Point position);
     void setRectangle(Area area, char brush);
     void setCircle(Point center, int radius, char brush);
     void setLine(Area area, char brush);
@@ -35,8 +35,8 @@ public:
 
 
 private:
-    Tool2d<char> screen;
-    Tool2d<char> buffer;
+    Array2d<char> screen;
+    Array2d<char> buffer;
     void setCursor(Point position);
     std::string str;
 	void makeStr(int yPos);

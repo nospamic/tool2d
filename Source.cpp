@@ -1,39 +1,31 @@
 #include<iostream>
 #include"Tool2d.h"
-#include "tool3d.h"
+#include "array3d.h"
 
 #include"fastconsole.h"
 
 
-Array2d<int> get() {
-	Array2d<int> arr(Size(100000, 1500));
-	arr.fill(200);
-	return arr;
-}
 
-void show(const Tool2d<char> &arr) {
-	for (int y = 0; y < arr.getSize().y; ++y) {
-		for (int x = 0; x < arr.getSize().x; ++x)
-			std::cout << arr.get(x, y) << " ";
-		std::cout << "\n";
-	}
-}
 
 int main() {
 
-	Tool3d<char> t3d(Size3d(200, 200, 20));
+	Array3d<char> t3d(Size3d(200, 200, 20));
+	t3d = Array3d<char>(Size3d(200, 200, 20));
 	t3d.fill('+');
+	Array3d<char> t3d2(std::move(t3d));
+	std::cout << t3d2.get(Point3d(2, 2, 10));
+
 	FastConsole cons(Size(80, 20));
 	for (float f = 0; f < 580; f+=1.5f) {
-		Tool2d<char>pic(Size(200,200), ' ');
-		Tool2d<char>pic2(Size(200, 200), ' ');
-		pic.setRectangle(Point(5, 5), Size(90, 25), 'O', '.');
-		pic2.setRectangle(Point(20, 10), Size(40, 90), 'O', '+');
-		pic.setCircle(Point(10, 10), 40, '#');
+		Array2d<char>pic(Size(200,200), ' ');
+		Array2d<char>pic2(Size(200, 200), ' ');
+		Tool2d::setRectangle(pic, Area(Point(5, 5), Size(90, 25)), 'O', '.');
+		Tool2d::setRectangle(pic2, Area(Point(20, 10), Size(40, 90)), 'O', '+');
+		Tool2d::setCircle(pic, Point(10, 10), 40, '#');
 		
-		pic2.setCircle(Point(20, 15), 10, '0');
-		pic.rotate(Point(25, 15), f);
-		pic2.rotate(Point(40, 25), -f*3);
+		Tool2d::setCircle(pic2, Point(20, 15), 10, '0');
+		Tool2d::rotate(pic, Point(25, 15), f);
+		Tool2d::rotate(pic2, Point(40, 25), -f*3);
 		cons.setPicture(pic, Point(0, 0));
 		cons.setPicture(pic2, Point(0, 0));
 		cons.setMsg("Hello rotation");

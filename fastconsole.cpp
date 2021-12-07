@@ -7,8 +7,8 @@
 FastConsole::FastConsole(Size size):size(size)
 {
 	scene = Scene(Area(Point(0, 0), size));
-	screen = Tool2d<char>(size, ' ');
-	buffer = Tool2d<char>(size, ' ');
+	screen = Array2d<char>(size, ' ');
+	buffer = Array2d<char>(size, ' ');
 	prepare();
 	str.resize(size.x, ' ');
 }
@@ -39,7 +39,7 @@ void FastConsole::prepare()
     std::ios_base::sync_with_stdio(0);
 }
 
-void FastConsole::setPicture(Tool2d<char> &pic, Point position)
+void FastConsole::setPicture(Array2d<char> &pic, Point position)
 {
     for (int y = 0; y < pic.getSize().y; y++)
     {
@@ -53,8 +53,8 @@ void FastConsole::setPicture(Tool2d<char> &pic, Point position)
 
 void FastConsole::setRectangle(Area area, char brush)
 {
-    Tool2d<char> rec(area.size);
-	rec.setRectangle(Point(0, 0), area.size, brush, screen.getBackground());
+    Array2d<char> rec(area.size);
+	Tool2d::setRectangle(rec, Area(Point(0, 0), area.size), brush, screen.getBackground());
     setPicture(rec, area.position);
 }
 
@@ -62,16 +62,16 @@ void FastConsole::setRectangle(Area area, char brush)
 void FastConsole::setCircle(Point topLeft, int radius, char brush)
 {
     if (radius !=0){
-        Tool2d<char> circle(Size(radius*2+1,radius*2+1),' ');
-        circle.setCircle(Point(0, 0), radius, brush);
+        Array2d<char> circle(Size(radius*2+1,radius*2+1),' ');
+        Tool2d::setCircle(circle, Point(0, 0), radius, brush);
         setPicture(circle, topLeft);
     }
 }
 
 
 void FastConsole::setLine(Area area, char brush){
-    Tool2d<char>line(area.size, screen.getBackground());
-    line.setLine(Point(0,0), area.size, brush);
+    Array2d<char>line(area.size, screen.getBackground());
+    Tool2d::setLine(line, Point(0,0), area.size, brush);
     setPicture(line,area.position);
 }
 
@@ -159,11 +159,11 @@ void FastConsole::text(Point position, std::string text)
 }
 
 void FastConsole::setMsg(std::string str){
-    int x = (size.x - (unsigned(str.length())+4))/2;
+	int x = (size.x - (unsigned(str.length())+4))/2;
     int y = (size.y - 5)/2;
     int w = str.length() + 4;
     int h = 5;
-    buffer.setRectangle(Point(x, y), Size( w, h),'/',' ');
+    Tool2d::setRectangle(buffer, Area(Point(x, y), Size( w, h)), '/', ' ');
     text(Point(x+2, y+2),str);
 }
 
