@@ -1,6 +1,6 @@
 #ifndef ARRAY2D_H
 #define ARRAY2D_H
-#include "Array2d.h"
+#include "array2d.h"
 
 
 
@@ -12,7 +12,7 @@ namespace Tool2d
 	template<typename T>
 	void setCircle(Array2d<T> &arr, Point upLeft, int radius, T brush);
 	template<typename T>
-	void setLine(Array2d<T> &arr, Point upLeft, Size size, T brush);
+	void setLine(Array2d<T> &arr, Point start, Point end, T brush);
 	template<typename T>
 	void setRectangle(Array2d<T> &arr, Area area, T brush, T fill);
 
@@ -56,15 +56,20 @@ inline void Tool2d::setCircle(Array2d<T> &arr, Point upLeft, int radius, T brush
 
 
 template<typename T>
-inline void Tool2d::setLine(Array2d<T> &arr, Point upLeft, Size size, T brush) {
-	float x = float(upLeft.x);
-	float y = float(upLeft.y);
-	float dx, dy;
-	int length = int(sqrt(pow(double(size.x), 2) + pow(double(size.y), 2)));
-	dx = float(size.x) / float(length);
-	dy = float(size.y) / float(length);
-	for (int n = 0; n < length; n++) {
-		arr.set(round(x), round(y), brush);
+inline void Tool2d::setLine(Array2d<T> &arr, Point start, Point end, T brush) {
+	int lengthX = end.x - start.x;
+	int lengthY = end.y - start.y;
+
+	float length = sqrt(pow(abs(lengthX), 2) + pow(abs(lengthY), 2));
+	if (length == 0.0f)
+		return;
+	float dx = lengthX / length;
+	float dy = lengthY / length;
+
+	float x = float(start.x);
+	float y = float(start.y);
+	for (int i = 0; i < int(std::roundf(length)); ++i) {
+		arr.set(int(std::roundf(x)), int(std::roundf(y)), brush);
 		x += dx;
 		y += dy;
 	}

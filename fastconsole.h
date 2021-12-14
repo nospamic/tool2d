@@ -39,7 +39,7 @@ private:
     Array2d<char> buffer;
     void setCursor(Point position);
     std::string str;
-	void makeStr(int yPos);
+	bool makeStr(int yPos);
 	Scene scene;
 };
 

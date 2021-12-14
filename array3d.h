@@ -66,6 +66,7 @@ class Array3d
 {
 public:
 	Array3d(Size3d size);
+	Array3d(Size3d size, T background);
 	Array3d(const Array3d<T> &other);
 	Array3d(Array3d<T> &&other);
 	Array3d<T>& operator=(const Array3d<T> &other);
@@ -82,6 +83,8 @@ public:
 	void setBackground(T background);
 	T getBackground() const;
 	bool isInside(Point3d point) const;
+	bool isZInside(int z);
+	Array2d<T>& getArray2d(int zPos);
 protected:
 	Array2d<T>*base;
 	Size3d size;
@@ -96,12 +99,23 @@ Array3d<T>::Array3d(Size3d size) :size(size) {
 		base[z] = Array2d<T>(Size(size.x, size.y));
 }
 
+template<typename T>
+inline Array3d<T>::Array3d(Size3d size, T background): size(size), background(background)
+{
+	base = new Array2d<T>[size.z];
+	for (int z = 0; z < size.z; ++z)
+		base[z] = Array2d<T>(Size(size.x, size.y));
+	setBackground(background);
+	fill();
+}
+
 template <typename T>
 Array3d<T>::Array3d(const Array3d<T> &other) {
 	//std::cout << "copy constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
 	base = new Array2d<T>[size.z];
 	background = other.background;
+	setBackground(background);
 	for (int z = 0; z < size.z; ++z)
 			base[z] = other.base[z];
 }
@@ -111,6 +125,7 @@ Array3d<T>::Array3d(Array3d<T> &&other) :base(other.base) {
 	//std::cout << "move constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
 	background = other.background;
+	setBackground(background);
 	other.size = Size3d(0, 0, 0);
 	other.base = nullptr;
 }
@@ -128,7 +143,8 @@ Array3d<T>& Array3d<T>::operator=(const Array3d<T> &other) {
 	for (int z = 0; z < size.z; ++z) {
 		base[z] = other.base[z];
 	}
-	
+	background = other.background;
+	setBackground(background);
 	return *this;
 }
 
@@ -140,6 +156,8 @@ Array3d<T>& Array3d<T>:: operator=(Array3d<T> &&other) {
 	delete[] base;
 	size = other.size;
 	base = other.base;
+	background = other.background;
+	setBackground(background);
 	other.size = Size3d(0, 0, 0);
 	other.base = nullptr;
 	return *this;
@@ -192,8 +210,11 @@ Size3d Array3d<T>::getSize() const {
 }
 
 template<typename T>
-void Array3d<T>::setBackground(T background) {
+inline void Array3d<T>::setBackground(T background) {
 	this->background = background;
+	for (int z = 0; z < size.z; ++z) {
+		base[z].Array2d<T>::setBackground(background);
+	}
 }
 
 template<typename T>
@@ -205,6 +226,16 @@ template<typename T>
 bool Array3d<T>::isInside(Point3d point) const {
 	Area3d area = Area3d(Point3d(0, 0, 0), size);
 	return area.isInside(point);
+}
+
+template<typename T>
+inline bool Array3d<T>::isZInside(int z){
+	return (z > 0 && z < size.z);
+}
+
+template<typename T>
+inline Array2d<T> & Array3d<T>::getArray2d(int zPos){
+	return base[zPos];
 }
 
 

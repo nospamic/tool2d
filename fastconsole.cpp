@@ -70,9 +70,9 @@ void FastConsole::setCircle(Point topLeft, int radius, char brush)
 
 
 void FastConsole::setLine(Area area, char brush){
-    Array2d<char>line(area.size, screen.getBackground());
-    Tool2d::setLine(line, Point(0,0), area.size, brush);
-    setPicture(line,area.position);
+    //Array2d<char>line(area.size, screen.getBackground());
+    //Tool2d::setLine(line, Point(0,0), area.size, brush);
+    //setPicture(line,area.position);
 }
 
 
@@ -104,7 +104,10 @@ void FastConsole::show()
 {
     for (int y = 0; y < size.y; y++)
     {
-		makeStr(y);
+		if (!makeStr(y)) {
+			continue;
+		}
+			
         setCursor(Point(0,y));
 		if (y == size.y - 1) {
 			str.pop_back();
@@ -119,14 +122,19 @@ void FastConsole::show()
     reset();
 }
 
-void FastConsole::makeStr(int yPos)
+bool FastConsole::makeStr(int yPos)
 {
+	bool isChanged = false;
 	for (int x = 0; x < size.x; x++)
 	{
-		screen.set(x, yPos, buffer.get(x, yPos));
+		char currentSymbol = buffer.get(x, yPos);
+		if (currentSymbol != screen.get(x, yPos))
+			isChanged = true;
+		screen.set(x, yPos, currentSymbol);
 		if (!(x == size.x - 1 && yPos == size.y - 1))
-			str[x] = buffer.get(x, yPos);
+			str[x] = currentSymbol;
 	}
+	return isChanged;
 }
 
 void FastConsole::resetScr()
