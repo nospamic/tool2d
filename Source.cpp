@@ -54,7 +54,7 @@ int main() {
 		//pic.set(Point3d(20,20,15), '@');
 		//Tool3d::setLightYZ(pic, 'r');
 		Array2d<char>plane = Tool3d::getPlaneXZ(pic);
-		frame[i] = plane;// pic.getArray2d(20);
+		frame[i] = std::move(plane);// pic.getArray2d(20);
 		fi += 3;
 	}
 

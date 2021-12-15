@@ -88,7 +88,6 @@ public:
 protected:
 	Array2d<T>*base;
 	Size3d size;
-	T background;
 };
 
 template <typename T>
@@ -100,7 +99,7 @@ Array3d<T>::Array3d(Size3d size) :size(size) {
 }
 
 template<typename T>
-inline Array3d<T>::Array3d(Size3d size, T background): size(size), background(background)
+inline Array3d<T>::Array3d(Size3d size, T background): size(size)
 {
 	base = new Array2d<T>[size.z];
 	for (int z = 0; z < size.z; ++z)
@@ -114,8 +113,6 @@ Array3d<T>::Array3d(const Array3d<T> &other) {
 	//std::cout << "copy constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
 	base = new Array2d<T>[size.z];
-	background = other.background;
-	setBackground(background);
 	for (int z = 0; z < size.z; ++z)
 			base[z] = other.base[z];
 }
@@ -124,8 +121,7 @@ template <typename T>
 Array3d<T>::Array3d(Array3d<T> &&other) :base(other.base) {
 	//std::cout << "move constr:" << size.x << " x " << size.y << "\n";
 	size = other.size;
-	background = other.background;
-	setBackground(background);
+	base = other.base;
 	other.size = Size3d(0, 0, 0);
 	other.base = nullptr;
 }
@@ -141,10 +137,13 @@ Array3d<T>& Array3d<T>::operator=(const Array3d<T> &other) {
 		base = new Array2d<T>[size.z];
 	}
 	for (int z = 0; z < size.z; ++z) {
-		base[z] = other.base[z];
+		if (!(base[z].isEmpty() && other.base[z].isEmpty())) {
+			base[z] = other.base[z];
+		}
+		else {
+			base[z].setBackground(other.getBackground());
+		}
 	}
-	background = other.background;
-	setBackground(background);
 	return *this;
 }
 
@@ -156,8 +155,6 @@ Array3d<T>& Array3d<T>:: operator=(Array3d<T> &&other) {
 	delete[] base;
 	size = other.size;
 	base = other.base;
-	background = other.background;
-	setBackground(background);
 	other.size = Size3d(0, 0, 0);
 	other.base = nullptr;
 	return *this;
@@ -178,6 +175,7 @@ void Array3d<T>::fill(T item) {
 
 template<typename T>
 void Array3d<T>::fill() {
+	T background = getBackground();
 	for (int z = 0; z < size.z; ++z)
 		base[z].Array2d<T>::fill(background);
 }
@@ -211,7 +209,6 @@ Size3d Array3d<T>::getSize() const {
 
 template<typename T>
 inline void Array3d<T>::setBackground(T background) {
-	this->background = background;
 	for (int z = 0; z < size.z; ++z) {
 		base[z].Array2d<T>::setBackground(background);
 	}
@@ -219,7 +216,7 @@ inline void Array3d<T>::setBackground(T background) {
 
 template<typename T>
 T Array3d<T>::getBackground() const {
-	return background;
+	return base[0].getBackground();
 }
 
 template<typename T>

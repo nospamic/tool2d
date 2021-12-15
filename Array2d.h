@@ -120,10 +120,10 @@ inline Array2d<T>::Array2d(Size size, T background) : size(size), background(bac
 template <typename T>
 inline Array2d<T>::Array2d(const Array2d<T> &other) {
 	//std::cout << "copy constr:" << size.x << " x " << size.y << "\n";
-	size = other.size;
-	base = new T*[size.x];
 	_isEmpty = other._isEmpty;
 	background = other.background;
+	size = other.size;
+	base = new T*[size.x];
 	for (int i = 0; i < size.x; ++i)
 		base[i] = new T[size.y];
 	for (int x = 0; x < size.x; ++x) {
@@ -158,8 +158,11 @@ inline Array2d<T>& Array2d<T>::operator=(const Array2d<T> &other) {
 		for (int i = 0; i < size.x; ++i)
 			base[i] = new T[size.y];
 	}
+	if(background == other.background && _isEmpty && other._isEmpty)
+		return *this;
 	background = other.background;
 	_isEmpty = other._isEmpty;
+	
 	for (int x = 0; x < size.x; ++x) {
 		for (int y = 0; y < size.y; ++y)
 			base[x][y] = other.base[x][y];
@@ -197,7 +200,7 @@ inline void Array2d<T>:: fill(T item) {
 		for (int y = 0; y < size.y; ++y)
 			base[x][y] = item;
 	}
-	_isEmpty = true;
+	_isEmpty = (item == background);
 }
 
 template<typename T>

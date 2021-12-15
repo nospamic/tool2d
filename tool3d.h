@@ -55,7 +55,7 @@ inline Array2d<T> Tool3d::getPlaneXZ(Array3d<T>& arr){
 			int lengthY = arr.getSize().y - 1;
 			int lengthZ = z - start.z;
 
-			float length = sqrt(pow(abs(lengthX), 2) + pow(abs(lengthY), 2) + pow(abs(lengthY), 2));
+			float length = sqrt(lengthX*lengthX + lengthY*lengthY + lengthZ*lengthZ);
 			
 			float dx = lengthX / length;
 			float dy = lengthY / length;
@@ -64,8 +64,12 @@ inline Array2d<T> Tool3d::getPlaneXZ(Array3d<T>& arr){
 			float curX = float(start.x);
 			float curY = float(start.y);
 			float curZ = float(start.z);
-			for (int i = 0; i < int(std::roundf(length)); ++i) {
-				T item = arr.get(int(std::roundf(curX)), int(std::roundf(curY)), int(std::roundf(curZ)));
+			int rayLanght = int(std::roundf(length));
+			for (int i = 0; i < rayLanght; ++i) {
+				int curZInt = int(std::roundf(curZ));
+				if(curZInt == z && arr.getArray2d(z).isEmpty())
+					break;
+				T item = arr.get(int(std::roundf(curX)), int(std::roundf(curY)), curZInt);
 				if (item != arr.getBackground()) {
 					plane.set(Point(x, z), item);
 					break;
