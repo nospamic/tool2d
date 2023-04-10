@@ -1,7 +1,8 @@
 #ifndef ARRAY2D_H
 #define ARRAY2D_H
 #include "array2d.h"
-
+#include <math.h>
+#include <memory>
 
 
 
@@ -28,6 +29,7 @@ inline void Tool2d::rotate(Array2d<T> &arr, Point center, float alpha) {
 	Array2d<T> temp(arr.getSize());
 	temp.setBackground(arr.getBackground());
 	temp.fill();
+//#pragma omp parallel for
 	for (int x = 0; x < arr.getSize().x; ++x) {
 		for (int y = 0; y < arr.getSize().y; ++y) {
 			T current = arr.get(x, y);
@@ -68,8 +70,8 @@ inline void Tool2d::setLine(Array2d<T> &arr, Point start, Point end, T brush) {
 
 	float x = float(start.x);
 	float y = float(start.y);
-	for (int i = 0; i < int(std::roundf(length)); ++i) {
-		arr.set(int(std::roundf(x)), int(std::roundf(y)), brush);
+	for (int i = 0; i < int(myRound(length)); ++i) {
+		arr.set(int(myRound(x)), int(myRound(y)), brush);
 		x += dx;
 		y += dy;
 	}
@@ -93,26 +95,27 @@ inline void Tool2d::setRectangle(Array2d<T> &arr, Area area, T brush, T fill) {
 }
 
 
-inline int Tool2d::round(float a) {
-	return int(std::round(a));
+inline int Tool2d::round(float n) {
+	if (n == 0) return 0;
+	return n > 0 ? (int)(n + 0.5f) : (int)(n - 0.5f);
 }
 
 
 inline int Tool2d::rotateX(Point point, Point center, float fi) {
 	float x0 = float(center.x);
 	float y0 = float(center.y);
-	float alpha = fi * 3.1416f / 180.0f;
-	float X = x0 + (point.x - x0) * float(cos(double(alpha))) - (point.y - y0) * float(sin(double(alpha)));
-	return round(X);
+	float alpha = fi * 0.01745f;//3.14/180
+	float X = x0 + (point.x - x0) * cosf(alpha) - (point.y - y0) * sinf(alpha);
+	return (int)(X + 0.5f);
 }
 
 
 inline int Tool2d::rotateY(Point point, Point center, float fi) {
 	float x0 = float(center.x);
 	float y0 = float(center.y);
-	float alpha = fi * 3.1416f / 180.0f;
-	float Y = y0 + (point.y - y0) * float(cos(double(alpha))) + (point.x - x0) * float(sin(double(alpha)));
-	return round(Y);
+	float alpha = fi * 0.01745f;//3.14/180
+	float Y = y0 + (point.y - y0) * cosf(alpha) + (point.x - x0) * sinf(alpha);
+	return (int)(Y + 0.5f);
 }
 
 

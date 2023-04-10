@@ -1,9 +1,19 @@
 #pragma once
 
+static int myRound(float n) {
+	if (n == 0) return 0;
+	return n > 0 ? (int)(n + 0.5f) : (int)(n - 0.5f);
+}
+
+static short inRange(short number, short range) {
+	short result = number < 0 ? 0 : number;
+	return result >= range ? range - 1 : result;
+}
+
 class Point 
 {
 public:
-	Point(){}
+	Point() : x(0), y(0) {}
 	Point(int x, int y) : x(x), y(y) {
 	}
 	bool operator ==(const Point&other) {
@@ -12,11 +22,26 @@ public:
 	bool operator !=(const Point&other) {
 		return !(x == other.x && y == other.y);
 	}
-	void operator = (const Point &other) {
-		x = other.x;
-		y = other.y;
-	}
 	int x, y;
+};
+
+class PointF
+{
+public:
+	PointF() : x(0), y(0) {}
+	PointF(float x, float y) : x(x), y(y) {
+	}
+	PointF(int x, int y) {
+		this->x = float(x);
+		this->y = float(y);
+	}
+	bool operator ==(const PointF& other) {
+		return (x == other.x && y == other.y);
+	}
+	bool operator !=(const PointF& other) {
+		return !(x == other.x && y == other.y);
+	}
+	float x, y;
 };
 
 class Size
@@ -32,10 +57,7 @@ public:
 	bool operator !=(const Size&other) {
 		return !(x == other.x && y == other.y);
 	}
-	void operator = (const Size &other) {
-		x = other.x;
-		y = other.y;
-	}
+	
 	int x, y;
 };
 
@@ -72,8 +94,8 @@ public:
 	
 	void fill(T item);
 	void fill();
-	T get(Point point) const;
-	T get(int x, int y) const;
+	T get(Point point)const;
+	T get(int x, int y)const;
 	void set(Point point, T item);
 	void set(int x, int y, T item);
 	Size getSize() const;
@@ -96,6 +118,7 @@ private:
 template<class T>
 inline Array2d<T>::Array2d() : size(Size(0, 0)){
 	base = new T*[size.y];
+	background = T();
 	_isEmpty = true;
 }
 
@@ -210,11 +233,17 @@ inline void Array2d<T>::fill(){
 
 template <typename T>
 inline T Array2d<T>::get(Point point)const {
+	if (!isInside(point)) {
+		return T();
+	}
 	return base[point.x][point.y];
 }
 
 template <typename T>
-inline T Array2d<T>::get(int x, int y) const{
+inline T Array2d<T>::get(int x, int y)const {
+	if (!isInside(Point(x, y))) {
+		return T();
+	}
 	return base[x][y];
 }
 

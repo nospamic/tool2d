@@ -1,6 +1,7 @@
 #pragma once
 #include "array3d.h"
 #include "Tool2d.h"
+#include <omp.h>
 
 namespace Tool3d 
 {
@@ -30,6 +31,8 @@ namespace Tool3d
 
 	template <typename T>
 	void setPoint(Array3d<T> &arr, Point3d start, T brush);
+
+	
 }
 
 template <typename T>
@@ -49,14 +52,14 @@ template<typename T>
 inline Array2d<T> Tool3d::getPlaneXZ(Array3d<T>& arr){
 	Array2d<T> plane(Size(arr.getSize().x, arr.getSize().z), arr.getBackground());
 	Point3d start = Point3d(arr.getSize().x / 2, 0, arr.getSize().z / 2);
+//#pragma omp parallel for
 	for (int z = 0; z < arr.getSize().z; ++z) {
+		bool isZempty = arr.getArray2d(z).isEmpty();
+		int lengthY = arr.getSize().y - 1;
+		int lengthZ = z - start.z;
 		for (int x = 0; x < arr.getSize().x; ++x) {
 			int lengthX = x - start.x;
-			int lengthY = arr.getSize().y - 1;
-			int lengthZ = z - start.z;
-
-			float length = sqrt(lengthX*lengthX + lengthY*lengthY + lengthZ*lengthZ);
-			
+			float length = sqrtf(lengthX*lengthX + lengthY*lengthY + lengthZ*lengthZ);
 			float dx = lengthX / length;
 			float dy = lengthY / length;
 			float dz = lengthZ / length;
@@ -64,12 +67,12 @@ inline Array2d<T> Tool3d::getPlaneXZ(Array3d<T>& arr){
 			float curX = float(start.x);
 			float curY = float(start.y);
 			float curZ = float(start.z);
-			int rayLanght = int(std::roundf(length));
+			int rayLanght = (int)(length + 0.5f);
 			for (int i = 0; i < rayLanght; ++i) {
-				int curZInt = int(std::roundf(curZ));
-				if(curZInt == z && arr.getArray2d(z).isEmpty())
+				int curZInt = (int)(curZ + 0.5f);
+				if(curZInt == z && isZempty)
 					break;
-				T item = arr.get(int(std::roundf(curX)), int(std::roundf(curY)), curZInt);
+				T item = arr.get((int)(curX + 0.5f), (int)(curY + 0.5f), curZInt);
 				if (item != arr.getBackground()) {
 					plane.set(Point(x, z), item);
 					break;
@@ -87,6 +90,8 @@ template<typename T>
 inline void Tool3d::setLightYZ(Array3d<T>& arr, T light)
 {
 	for (int z = 0; z < arr.getSize().z; ++z) {
+		if (arr.getArray2d(z).isEmpty())
+			continue;
 		for (int y = 0; y < arr.getSize().y; ++y) {
 			for (int x = 0; x < arr.getSize().x; ++x) {
 				if (arr.get(Point3d(x, y, z)) != arr.getBackground()) {
@@ -123,9 +128,9 @@ inline void Tool3d::setBall(Array3d<T>& arr, Area3d area, T brush)
 		for (int y = 0; y < area.size.y; ++y) {
 			for (int x = 0; x < area.size.x; ++x) {
 				Point3d realPosition = Point3d(area.position.x + x, area.position.y + y, area.position.z + z);
-				float x1 = x - 0.5 * area.size.x;
-				float y1 = y - 0.5 * area.size.y;
-				float z1 = z - 0.5 * area.size.z;
+				float x1 = x - 0.5f * area.size.x;
+				float y1 = y - 0.5f * area.size.y;
+				float z1 = z - 0.5f * area.size.z;
 				float ellipse = (x1*x1) / (area.size.x * area.size.x) + (y1*y1) / (area.size.y * area.size.y) + (z1*z1) / (area.size.z * area.size.z);
 				if (arr.isInside(realPosition) 
 					&& ellipse < 0.24
@@ -155,8 +160,8 @@ inline void Tool3d::setLine(Array3d<T> &arr, Point3d start, Point3d end, T brush
 	float x = float(start.x);
 	float y = float(start.y);
 	float z = float(start.z);
-	for (int i = 0; i < int(std::roundf(length)); ++i) {
-		arr.set(int(std::roundf(x)), int(std::roundf(y)), int(std::roundf(z)), brush);
+	for (int i = 0; i < int(myRound(length)); ++i) {
+		arr.set(int(myRound(x)), int(myRound(y)), int(myRound(z)), brush);
 		x += dx;
 		y += dy;
 		z += dz;

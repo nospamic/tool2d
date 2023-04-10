@@ -4,7 +4,8 @@
 class Point3d
 {
 public:
-	Point3d() {}
+	Point3d() : x(0), y(0), z(0) {
+	}
 	Point3d(int x, int y, int z) : x(x), y(y), z(z) {
 	}
 	bool operator ==(const Point3d&other) {
@@ -13,12 +14,37 @@ public:
 	bool operator !=(const Point3d&other) {
 		return !(x == other.x && y == other.y && z == other.z);
 	}
-	void operator = (const Point3d &other) {
+	int x, y, z;
+};
+
+
+class PointF3d
+{
+public:
+	PointF3d() : x(0), y(0), z(0) {
+	}
+	PointF3d(float x, float y, float z) : x(x), y(y), z(z) {
+	}
+	PointF3d(Point3d point) {
+		x = point.x;
+		y = point.y;
+		z = point.z;
+	}
+	bool operator ==(const PointF3d& other) {
+		return (x == other.x && y == other.y && z == other.z);
+	}
+	bool operator !=(const PointF3d& other) {
+		return !(x == other.x && y == other.y && z == other.z);
+	}
+	void operator =(const Point3d& other) {
 		x = other.x;
 		y = other.y;
 		z = other.z;
 	}
-	int x, y, z;
+	Point3d getPoint3d() {
+		return Point3d(myRound(x), myRound(y), myRound(z));
+	}
+	float x, y, z;
 };
 
 class Size3d
@@ -34,11 +60,7 @@ public:
 	bool operator !=(const Size3d&other) {
 		return !(x == other.x && y == other.y && z == other.z);
 	}
-	void operator = (const Size3d &other) {
-		x = other.x;
-		y = other.y;
-		z = other.z;
-	}
+	
 	int x, y, z;
 };
 
@@ -65,6 +87,7 @@ template<typename T>
 class Array3d
 {
 public:
+	
 	Array3d(Size3d size);
 	Array3d(Size3d size, T background);
 	Array3d(const Array3d<T> &other);
@@ -85,10 +108,13 @@ public:
 	bool isInside(Point3d point) const;
 	bool isZInside(int z);
 	Array2d<T>& getArray2d(int zPos);
+	Array3d<T> getFragment(Area3d area);
 protected:
 	Array2d<T>*base;
 	Size3d size;
 };
+
+
 
 template <typename T>
 Array3d<T>::Array3d(Size3d size) :size(size) {
@@ -182,11 +208,17 @@ void Array3d<T>::fill() {
 
 template <typename T>
 T Array3d<T>::get(Point3d point)const {
+	if (point.z < 0 || point.z >= size.z) {
+		return T();
+	}
 	return base[point.z].Array2d<T>::get(point.x, point.y);
 }
 
 template <typename T>
 T Array3d<T>::get(int x, int y, int z) const {
+	if (z < 0 || z >= size.z) {
+		return T();
+	}
 	return base[z].Array2d<T>::get(x, y);
 }
 
@@ -233,6 +265,21 @@ inline bool Array3d<T>::isZInside(int z){
 template<typename T>
 inline Array2d<T> & Array3d<T>::getArray2d(int zPos){
 	return base[zPos];
+}
+
+template<typename T>
+inline Array3d<T> Array3d<T>::getFragment(Area3d area)
+{
+	Array3d<T> fragment(area.size, this->getBackground());
+	for (int z = 0; z < area.size.z; ++z) {
+		for (int y = 0; y < area.size.y; ++y) {
+			for (int x = 0; x < area.size.x; ++x) {
+				Point3d absolut(x + area.position.x, y + area.position.y, z + area.position.z);
+				fragment.set(x, y, z, get(absolut));
+			}
+		}
+	}
+	return fragment;
 }
 
 
